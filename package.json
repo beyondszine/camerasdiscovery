@@ -10,7 +10,9 @@
   "husky" : {
     "hooks" :{
       "pre-commit" : "bash ./hooks/pre-commit.sh",
-      "commit-msg": "echo commit-msg hook works"
+      "commit-msg": "bash ./hooks/commit-msg.sh",
+      "pre-push" : "bash ./hooks/pre-push.sh",
+      "post-commit" : "bash ./hooks/post-commit.sh"
     }
   },
   "keywords": [
