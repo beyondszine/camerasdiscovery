@@ -5,7 +5,8 @@
 
 - Idea is to convert it from a library to a quickly-digestible tool including some other handy services & discovery options.
 
-TLDR run
+TLDR
+Local run
 - bash ./run.sh
 
 Example docker Usage:
@@ -13,15 +14,6 @@ Docker pull
 ```sh
 docker pull saurabhshandy/camerasdiscovery
 ```
-
-Example docker Usage:
-```
-$ docker run --rm --name=onvifdiscover --network host saurabhshandy/camerasdiscovery 
-Start the discovery process.
-1 devices were found.
-  - Avantgarde-Test
-{"urn":"urn:uuid:d74f3d21-1fb3-4ea2-887e-73e8ad986447","name":"Avantgarde-Test","hardware":"PL1130","location":"shenzhen","types":["dn:NetworkVideoTransmitter"],"xaddrs":["http://192.168.1.107:36000/onvif/device_service"],"scopes":["onvif://www.onvif.org/type/video_encoder","onvif://www.onvif.org/type/ptz","onvif://www.onvif.org/type/audio_encoder","onvif://www.onvif.org/hardware/PL1130","onvif://www.onvif.org/name/Avantgarde-Test","onvif://www.onvif.org/location/shenzhen"]}
-
 
 ---------------------------------------
 ## <a id="License"> License</a>
