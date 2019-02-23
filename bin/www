@@ -1,0 +1,141 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('expressjsproductiontemplate:server');
+var http = require('http');
+const path = require('path');
+const { createTerminus, HealthCheckError } = require('@godaddy/terminus');
+require('dotenv').config({path : path.resolve(process.cwd(), '.env')});
+
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '8000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+const healthCheckOptions = {
+  healthChecks: {
+    '/health': async function () {
+        console.log('health check ran!'); 
+        // Fun thing: if the uptime of the program is odd/even return success or error response.
+        if(Math.floor(process.uptime()%2)){
+          return Promise.resolve();
+        }
+        else{
+          throw new HealthCheckError('healtcheck failed', errors)
+        }
+      },
+      '/ready': async function(){
+        return Promise.resolve();
+      }    
+  },
+  // [optional = 1000] number of milliseconds before forcefull exiting
+  timeout: 1000,                   
+  beforeShutdown : function () {
+    // [optional] called right before exiting
+    return new Promise(resolve => {
+      console.log('Before Shutting Down! Giving necessary delay here for kubernetes to be surely updated.');
+      setTimeout(resolve, 5000)
+    });             
+  },                  
+  onSignal :  function () {
+    return new Promise((resolve,reject) => {          
+      console.log('server is starting cleanup');
+      resolve();
+    });
+  },
+  onShutdown : function () {
+    return new Promise((resolve,reject) => {          
+      console.log('cleanup finished, server is shutting down');
+      resolve();
+    });
+  }
+};
+createTerminus(server, healthCheckOptions);
+
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
+
+process.on('uncaughtException', function (er) {
+  // do something with this error.  Send a mail to yourself or admins telling the cause.
+  console.error(er.stack)
+  process.exit(1)
+});
