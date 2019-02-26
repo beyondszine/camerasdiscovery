@@ -1,26 +1,90 @@
-### Cameras Discovery:
+# Cameras Discovery:
 
-- Its a fork from @futomi/node-onvif which is a Node.js module, allows you to communicate with the network camera which supports the ONVIF specifications.
-- I have added support for searching via other mechanicsms like UPnP,mdns,port number based to get list of all potential cameras.
+### What is Cameras Discovery?
+- Idea is to convert it from a library to a quickly-digestible tool including some other handy services & discovery options. 
+- Support for searching via other mechanicsms like UPnP,mdns,port number based to get list of all potential cameras.
 
-- Idea is to convert it from a library to a quickly-digestible tool including some other handy services & discovery options.
+### How it works?
 
-TLDR
+
+### Installing:
 Local run
 - bash ./run.sh
 
-Example docker Usage:
 Docker pull
 ```sh
 docker pull saurabhshandy/camerasdiscovery
 ```
-
 ---------------------------------------
+
+### Objects:
+
+- streamops
+Input
+```
+{
+    "url" : "rtsp://192.168.1.99/live/av0?user=myusename&passwd=mypassword",
+    "saveOptions" :{
+        "savelocation" : "local/public",
+        "maxfilesize" : "100M"  
+    },
+    "videostreamOptions" :{
+    "enabled" : true,
+    "re-stream" : true,
+    "fps" : "auto",
+    "video-size" : '1280x720',
+    "codec" : "mpeg1video",
+    "transport":"tcp",
+    "format" : "mpegts"
+    },
+    "audiostreamOptions" :{
+    "enabled" : false
+    }
+}
+```
+Output Object:
+```
+{
+    "url" : inputObject.videostreamOptions.url,
+    "requestID" : your-unique-request-id,
+    "saveOptions" : {
+    "savelocation" : function(inputObject){
+        if (inputObject.saveOptions.location=="public"){
+            return "publicFileURL";
+        }
+        else if(inputObject.saveOptions.location=="local"){
+            return "localfilepath";
+        }
+    },
+    "maxfilesize" : "100M"
+    },
+    "videostreamOptions" :{
+    "enabled" : inputObject.videostreamOptions.enabled,
+    "re-stream" : function(inputObject){
+        if (inputObject.videostreamOptions.re-stream){
+            return "public stream URL";
+        }
+        else{
+            return "NA";
+        }
+    },
+    "fps" : inputObject.videostreamOptions.fps,
+    "video-size" : inputObject.videostreamOptions.video-size,
+    "codec" : inputObject.videostreamOptions.codec,
+    "transport":inputObject.videostreamOptions.transport,
+    "format" : inputObject.videostreamOptions.format
+    },
+    "audiostreamOptions" :{
+    "enabled" : false
+    }
+}
+```
+
 ## <a id="License"> License</a>
 
 The MIT License (MIT)
 
-Copyright (c) 2016 - 2018 Futomi Hatano
+Copyright (c) @ Saurabh Shandilya
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

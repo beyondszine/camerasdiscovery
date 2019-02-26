@@ -7,12 +7,18 @@
     "test": "snyk test",
     "devstart": "DEBUG=* nodemon ./bin/www"
   },
-  "husky" : {
-    "hooks" :{
-      "pre-commit" : "bash ./hooks/pre-commit.sh",
+  "homepage": "https://github.com/beyondszine/camerasdiscovery",
+  "license": "SEE LICENSE IN <LICENSE>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beyondszine/camerasdiscovery"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "bash ./hooks/pre-commit.sh",
       "commit-msg": "bash ./hooks/commit-msg.sh",
-      "pre-push" : "bash ./hooks/pre-push.sh",
-      "post-commit" : "bash ./hooks/post-commit.sh"
+      "pre-push": "bash ./hooks/pre-push.sh",
+      "post-commit": "bash ./hooks/post-commit.sh"
     }
   },
   "keywords": [
@@ -26,15 +32,18 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@godaddy/terminus": "^4.1.0",
+    "body-parser": "^1.18.3",
     "compression": "^1.7.3",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "dotenv": "^6.1.0",
     "express": "~4.16.0",
+    "fluent-ffmpeg": "^2.1.2",
     "helmet": "^3.13.0",
     "html": ">=1.0.0",
     "morgan": "~1.9.0",
     "nat-upnp-2": "^3.0.3",
+    "uuid": "^3.3.2",
     "xml2js": ">=0.4.17"
   },
   "devDependencies": {
