@@ -43,69 +43,95 @@ router.route('/probestream')
 
 router.route('/streamops')
   .post(jsonParser,function(req,res){    
-    console.log("stream-ops called!");
+    console.log("streamops route called!");
     var inputStreamOpsbody=req.body;
-    console.log("Requested stream URL for operations :",inputStreamOpsbody.url);
-    console.log("Requested stream URL Video operations :",inputStreamOpsbody.videostreamOptions);
-    console.log("Requested stream URL Audio operations :",inputStreamOpsbody.audiostreamOptions);
-
-    var genResponse = new Promise(function(resolve,reject){
-      var responsebody={
-        "url" : inputStreamOpsbody.url,
-        "requestID" : function(){
-          return uuidv4();
-        }(),
-        "saveOptions" : {
-          "savelocation" : function(inputStreamOpsbody){
-            if (inputStreamOpsbody.saveOptions.savelocation=="public"){
+    function genResponse(inputStreamOpsbody){
+      return new Promise(function(resolve,reject){
+        var responsebody={
+          "url" : inputStreamOpsbody.url,
+          "requestID" : function(){
+            return uuidv4();
+          }(),
+          "type" : function(inputStreamOpsbody){
+            if (inputStreamOpsbody.type=="public"){
               return "publicFileURL";
             }
-            else if(inputStreamOpsbody.saveOptions.savelocation=="local"){
+            else if(inputStreamOpsbody.type=="local"){
               return "localfilepath";
             }
             else{
               return "ERR";
             }
           }(inputStreamOpsbody),
-          "maxfilesize" : inputStreamOpsbody.saveOptions.maxfilesize
-        },
-        "videostreamOptions" :{
-          "enabled" : inputStreamOpsbody.videostreamOptions.enabled,
-          "restream" : function(inputStreamOpsbody){
-            if (inputStreamOpsbody.videostreamOptions.restream){
-              return "public stream URL";
-            }
-            else{
-              return "NA";
-            }
-          }(inputStreamOpsbody),
-          "fps" : inputStreamOpsbody.videostreamOptions.fps,
-          "videosize" : inputStreamOpsbody.videostreamOptions.videosize,
-          "codec" : inputStreamOpsbody.videostreamOptions.codec,
-          "transport":inputStreamOpsbody.videostreamOptions.transport,
-          "format" : inputStreamOpsbody.videostreamOptions.format
-        },
-        "audiostreamOptions" :{
-          "enabled" : inputStreamOpsbody.audiostreamOptions.enabled
-        }
-      };
-      resolve(responsebody);
-    });
+          "saveOptions" : {
+            "filename" : inputStreamOpsbody.saveOptions.filename,
+            "maxfilesize" : inputStreamOpsbody.saveOptions.maxfilesize
+          },
+          "videostreamOptions" :{
+            "enabled" : inputStreamOpsbody.videostreamOptions.enabled,
+            "restream" : function(inputStreamOpsbody){
+              if (inputStreamOpsbody.videostreamOptions.restream){
+                return "public stream URL";
+              }
+              else{
+                return "NA";
+              }
+            }(inputStreamOpsbody),
+            "fps" : inputStreamOpsbody.videostreamOptions.fps,
+            "videosize" : inputStreamOpsbody.videostreamOptions.videosize,
+            "codec" : inputStreamOpsbody.videostreamOptions.codec,
+            "transport":inputStreamOpsbody.videostreamOptions.transport,
+            "format" : inputStreamOpsbody.videostreamOptions.format
+          },
+          "audiostreamOptions" :{
+            "enabled" : inputStreamOpsbody.audiostreamOptions.enabled
+          }
+        };
+        resolve(responsebody);
+      });
+    }
 
-    genResponse
+    // check for all NEEDED fields
+    if(!inputStreamOpsbody.url || !inputStreamOpsbody.type){
+      var err_msg="one or more Needed fileds missing";
+      console.log(err_msg);
+      return res.status(400).send({"_status":"ERR","_message":err_msg});
+    }
+
+    if(inputStreamOpsbody.videostreamOptions.enabled==false && inputStreamOpsbody.audiostreamOptions.enabled==false){
+      var err_msg="No real job given. Kindly refer to API to give either Audio or Video streaming job!";
+      console.log(err_msg);
+      return res.status(400).send({"_status":"ERR","_message":err_msg});
+    }
+
+    genResponse(inputStreamOpsbody)
     .then(function(respbody){
+      //Case I
+      if(inputStreamOpsbody.type=="local" && inputStreamOpsbody.videostreamOptions.restream==false){
+        if(inputStreamOpsbody.saveOptions.maxfilesize || inputStreamOpsbody.saveOptions.duration)
+        console.log("Running local job for Saving video locally with max file size: "+inputStreamOpsbody.saveOptions.maxfilesize);
+        console.log("Running local job for Saving video locally for time duration: "+inputStreamOpsbody.saveOptions.duration);
+        rtspFunctions.streamOpsSave(respbody);
+      }
+      //Case II
+      if(inputStreamOpsbody.type=="local" && inputStreamOpsbody.videostreamOptions.restream==true){
+        console.log("Running local job for Streaming video locally");
+        rtspFunctions.streamOpsStream(respbody);
+      }
+      //Case III
+      if(inputStreamOpsbody.type=="cloud" && inputStreamOpsbody.videostreamOptions.restream==false){
+        console.log("Running job for Saving video on cloud with max file size:",inputStreamOpsbody.saveOptions.maxfilesize);
+      }
+
+      //Case IV
+      if(inputStreamOpsbody.type=="cloud" && inputStreamOpsbody.videostreamOptions.restream==true){
+        console.log("Running local job for Streaming video on cloud");
+      }
       return res.send(respbody);
     })
     .catch(function(err){
       return res.send({"_status":"ERR","_message":err.message});
     });
-  //   rtspFunctions.streamOps(inputStreamOpsbody)
-  //   .then(function(response){
-  //     return res.send(response);
-  //   })
-  //   .catch(function(err){
-  //     return res.send({"_status":"ERR","_message":err._message});
-  //   });
   });
 
 
