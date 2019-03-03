@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
 const uuidv4 = require('uuid/v4');
+const fs = require('fs');
 
 
 const onvifFunctions = require('../controllers/onvifFunctions');
@@ -15,7 +16,7 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-router.route('/discoverCameras')
+router.route('/discovercameras')
   .get(function(req,res){
     onvifFunctions.discoverCameras()
     .then(devices_list => {
@@ -134,6 +135,13 @@ router.route('/streamops')
     });
   });
 
+router.route('/sampleurls')
+  .get(function(req,res){
+    console.log("All sample URLS",__dirname);
+    var samplefilename=__dirname+'/sampleurls.json';
+    fs.createReadStream(samplefilename)
+    .pipe(res);
+  });
 
 router.route('/upnp')
   .get(function(req,res){

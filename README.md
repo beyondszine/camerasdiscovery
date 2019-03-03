@@ -262,6 +262,13 @@ Output response
 Validate for local stream view on web page:
 docker run --name myNginx -p 80:80 -v /home/beyond/nodejs/samples:/usr/share/nginx/html:ro -d nginx
 
+
+Srcs:
+- https://gist.github.com/jsturgis/3b19447b304616f18657
+- fluent-ffmpeg
+- foscam-streamer
+
+
 ## <a id="License"> License</a>
 
 The MIT License (MIT)
