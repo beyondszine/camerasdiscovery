@@ -9,8 +9,10 @@
 - [x] DiscoverCameras : discover cameras in your network.  Supported scan types are Upnp, RTSP Port scan, Onvif.
 - [x] Probestream : Probe a stream by giving URL as parameter.  ffprobe response is returend as json giving details like 
 - [x] Stream-ops : Pass a streamURL, 
-  - [x] Save the file from stream locally.
-  - [ ] Save the file from stream on cloud.  
+  - [x] Save the video file from stream locally.
+  - [ ] Save the video file from stream on cloud.
+  - [x] Get Image file from stream as Response. (One shot usage)
+  - [ ] Get Image Steam from given stream as Response.  (BULK USAGE)
   - [ ] Restream the resource locally or on cloud.
   - [ ] Access the stream via websocket.
   - [ ] Access the stream on HLS.  
@@ -28,10 +30,71 @@ docker pull saurabhshandy/camerasdiscovery
 ---------------------------------------
 
 ### Routes with Input & Output:
+List of Routes:
+- `/discoverCameras` : discover cameras in your network.
+  ```sh
+  curl --request GET \
+  --url http://localhost:8000/v1/rpc/discoverCameras \
+  --header 'content-type: application/json'
+  ```
+- /streamops : do operations on video stream/file like saving it locally/cloud or restream it.
+```sh
+curl --request POST \
+  --url http://localhost:8000/v1/rpc/streamops \
+  --header 'content-type: application/json' \
+  --data '{
+	"url" : "rtsp://192.168.x.y/live/av0?user=myuser&passwd=mypassword",
+	"type" : "local",
+	"saveOptions" :{
+		"filename" : "myfile",
+		"maxfilesize" : "100M",
+		"duration": "10"
+	},
+	"videostreamOptions" :{
+		"enabled" : true,
+		"restream" : false,
+		"fps" : "auto",
+		"videosize" : "1280x720",
+		"codec" : "mpeg1video",
+		"transport":"tcp",
+		"format" : "mpegts"
+	},
+	"audiostreamOptions" :{
+		"enabled" : false
+	}
+}'
+```
+- `/probestream` : Do a `ffprobe` on the given stream.
+```sh
+curl --request POST \
+  --url http://localhost:8000/v1/rpc/probestream \
+  --header 'content-type: application/json' \
+  --data '{
+	"url" : "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+}'
+```
+- `/sampleurls` : Don't have streams ??  This route will give you stuff to play around.
+```sh
+curl --request GET \
+  --url http://localhost:8000/v1/rpc/sampleurls
+```
+- `/getimage` : Get only one image for the requested stream. (Don't abuse this route too much. For getting multiple snapshots in fast manner, use `getimagestream`).
+  ```sh
+  curl --request POST \
+    --url http://localhost:8000/v1/rpc/getimage \
+    --header 'content-type: application/json' \
+    --data '{
+    "url" : "rtsp://192.168.x.y/live/av0?user=myuser&passwd=mypassword"
+  }'
+  ```
+- /getimagestream : This enables to get recurring images in case you want image stream.
 
-- /discoverCameras
 
-Output Response
+## Details of Routes:
+
+- `/discoverCameras`
+
+Output Example
 ```
 {
   "status": "success",
@@ -77,32 +140,8 @@ Output Response
   ]
 }
 ```
-- /streamops
-Input
-```
-{
-	"url" : "rtsp://192.168.1.99/live/av0?user=myusename&passwd=mypassword",
-	"type" : "local",
-	"saveOptions" :{
-		"filename" : "myfile",
-		"maxfilesize" : "100M",
-		"duration": "100"
-	},
-	"videostreamOptions" :{
-		"enabled" : true,
-		"restream" : true,
-		"fps" : "auto",
-		"videosize" : "1280x720",
-		"codec" : "mpeg1video",
-		"transport":"tcp",
-		"format" : "mpegts"
-	},
-	"audiostreamOptions" :{
-		"enabled" : false
-	}
-}
-```
-Output Object:
+- `/streamops`
+Output Example:
 ```
 {
   "url": "rtsp://192.168.1.99/live/av0?user=myusename&passwd=mypassword",
@@ -128,14 +167,8 @@ Output Object:
   }
 }
 ```
-- /probestream
-Input:
-```
-{
-	"url" : "rtsp://192.168.x.y/live/av0?user=myuser&passwd=mypasswd"
-}
-```
-Output response
+- `/probestream`
+Output Example
 ```
 {
   "streams": [
@@ -260,7 +293,7 @@ Output response
 ```
 
 Validate for local stream view on web page:
-docker run --name myNginx -p 80:80 -v /home/beyond/nodejs/samples:/usr/share/nginx/html:ro -d nginx
+docker run --name myNginx -p 80:80 -v /path/to/thisrepo/public/html:/usr/share/nginx/html:ro -d nginx
 
 
 Srcs:
