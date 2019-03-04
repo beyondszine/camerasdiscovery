@@ -37,7 +37,7 @@ List of Routes:
   --url http://localhost:8000/v1/rpc/discoverCameras \
   --header 'content-type: application/json'
   ```
-- /streamops : do operations on video stream/file like saving it locally/cloud or restream it.
+- `/streamops` : do operations on video stream/file like saving it locally/cloud or restream it.
 ```sh
 curl --request POST \
   --url http://localhost:8000/v1/rpc/streamops \
@@ -87,7 +87,7 @@ curl --request GET \
     "url" : "rtsp://192.168.x.y/live/av0?user=myuser&passwd=mypassword"
   }'
   ```
-- /getimagestream : This enables to get recurring images in case you want image stream.
+- `/getimagestream` : This enables to get recurring images in case you want image stream.
 
 
 ## Details of Routes:
@@ -293,8 +293,9 @@ Output Example
 ```
 
 Validate for local stream view on web page:
+```sh
 docker run --name myNginx -p 80:80 -v /path/to/thisrepo/public/html:/usr/share/nginx/html:ro -d nginx
-
+```
 
 Srcs:
 - https://gist.github.com/jsturgis/3b19447b304616f18657
