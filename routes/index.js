@@ -5,16 +5,16 @@ var router = express.Router();
 /* GET home page. */
 router.use('/info',function(req,res){
   var infoObj={
-    "name": "App Name",
-    "description": "App description",
+    "name": "Cameras Discovery",
+    "description": "This repo aims at providing all necessary tools to discover cameras on network via Upnp, Onvif, port scan etc.",
     "version": "0.1.0",
     "build": {
-        "href": "os.environ.get('CI_BUILD_LINK', '-')",
-        "name": "Build No 21",
+        "href": os.environ.get('CI_BUILD_LINK', '-'),
+        "name": "SomeBuild No",
     },
     "repo": {
-        "name": "os.environ.get('CI_REPO_NAME', '-')",
-        "href": "os.environ.get('CI_REPO_LINK', '-')"
+        "name": os.environ.get('CI_REPO_NAME', '-'),
+        "href": os.environ.get('CI_REPO_LINK', '-')
     },
     "commit": {
         "href": "os.environ.get('CI_COMMIT_LINK', '-')",

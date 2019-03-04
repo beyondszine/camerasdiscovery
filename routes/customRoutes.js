@@ -143,6 +143,21 @@ router.route('/sampleurls')
     .pipe(res);
   });
 
+router.route('/getimage')
+  .post(jsonParser,function(req,res){
+    console.log("Get Image called!");
+    console.log("Requested URL to get image from:",req.body.url);
+    // TODO: Figure out type of URL first. ex- file, url etc
+    rtspFunctions.getimage(req.body.url)
+    .then(function(savedfilename){
+      return res.sendFile(savedfilename);
+    })
+    .catch(function(ffmpeg_err){
+      console.error("Error happened in getimage promise",ffmpeg_err);
+      return res.send({"_status":"ERR","_message":ffmpeg_err._message});
+    });
+  });
+
 router.route('/upnp')
   .get(function(req,res){
     upnpFunctions.getUpnpMappings()

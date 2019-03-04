@@ -6,6 +6,7 @@
     const path = require('path');
     var ffp = require("find-free-port");
     const cp = require('child_process');
+    const uuidv1 = require('uuid/v1');
 
 
     var morgan = require('morgan');
@@ -154,10 +155,71 @@
         }
     }
 
+    function getimage(myurl){
+        return new Promise(function(resolve,reject){
+            var maxtimeout=600;
+            console.log("Get-Image Called for URL:",myurl);
+            var ffmpegOptions={
+                timeout : maxtimeout,
+                // logger : morgan('combined', { stream: accessLogStream })
+            };// in seconds
+
+            var baseSnapshotsDirectory = path.join(__dirname, '../', '/public/images/snapshots/')
+            var outputfilename = uuidv1() + '.png';
+            var outputfilenamefullpath=baseSnapshotsDirectory+outputfilename;
+
+            // var transportInputOptions='-rtsp_transport '+ (streamopsObject.videostreamOptions.transport || "tcp");
+            // var imageformatOption = '-f '+ (streamopsObject.videostreamOptions.format || "mpegts");
+            try{
+                var mcommand=ffmpeg(ffmpegOptions);
+                    mcommand
+                    .input(myurl)
+                    .on('start', function(commandLine) {
+                        console.log('Spawned Ffmpeg with command: ' + commandLine);
+                    })
+                    .on('codecData', function(data) {
+                        console.log('Input is ' + data.audio + ' audio ' +
+                        'with ' + data.video + ' video');
+                    })
+                    .on('progress', function(progress) {
+                        console.log('Processing: ' + JSON.stringify(progress));
+                    })
+                    .on('stderr', function(stderrLine) {
+                        console.log('Stderr output: ' + stderrLine);
+                    })
+                    .on('error', function(err, stdout, stderr) {
+                        console.log(JSON.stringify(err));
+                        var emsg=err.message.split(':')[3];
+                        var error_msg={
+                            "_status" : "ERR",
+                            "_message": emsg,
+                            "stack": JSON.stringify(err)
+                        };
+                        console.log('Error:' + JSON.stringify(error_msg));
+                    })
+                    .on('end', function(stdout, stderr) {
+                        console.log('Image Saved Successfully !');
+                        resolve(outputfilenamefullpath);
+                    })
+                    // Operations
+                    .noAudio()
+                    // .inputOptions(transportInputOptions)
+                    // .size(videosizeOption)
+                    .outputOptions(['-f image2', '-vframes 1', '-vcodec png'])
+                    .save(outputfilenamefullpath);
+                }
+                catch(ffmpeg_err){
+                    console.error("ffmpeg error",ffmpeg_err);
+                    reject(ffmpeg_err);
+                }
+            });
+    }
+
     module.exports = {
         probeStream : probeStream,
         streamOpsSave : streamOpsSave,
-        streamOpsStream : streamOpsStream
+        streamOpsStream : streamOpsStream,
+        getimage : getimage
       };
     
 })();

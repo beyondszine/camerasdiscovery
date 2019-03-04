@@ -267,6 +267,10 @@ Srcs:
 - https://gist.github.com/jsturgis/3b19447b304616f18657
 - fluent-ffmpeg
 - foscam-streamer
+- https://sonnati.wordpress.com/2011/08/08/ffmpeg-%E2%80%93-the-swiss-army-knife-of-internet-streaming-%E2%80%93-part-ii/
+- https://ffmpeg.org/
+- https://github.com/phoboslab/jsmpeg
+
 
 
 ## <a id="License"> License</a>
