@@ -8,6 +8,7 @@ const fs = require('fs');
 const onvifFunctions = require('../controllers/onvifFunctions');
 const upnpFunctions = require('../controllers/upnpFunctions');
 const rtspFunctions = require('../controllers/rtspFunctions');
+const jobManager = require('../controllers/jobManager');
 
 var jsonParser = bodyParser.json();
 
@@ -46,93 +47,66 @@ router.route('/streamops')
   .post(jsonParser,function(req,res){    
     console.log("streamops route called!");
     var inputStreamOpsbody=req.body;
-    function genResponse(inputStreamOpsbody){
-      return new Promise(function(resolve,reject){
-        var responsebody={
-          "url" : inputStreamOpsbody.url,
-          "requestID" : function(){
-            return uuidv4();
-          }(),
-          "type" : function(inputStreamOpsbody){
-            if (inputStreamOpsbody.type=="public"){
-              return "publicFileURL";
-            }
-            else if(inputStreamOpsbody.type=="local"){
-              return "localfilepath";
-            }
-            else{
-              return "ERR";
-            }
-          }(inputStreamOpsbody),
-          "saveOptions" : {
-            "filename" : inputStreamOpsbody.saveOptions.filename,
-            "maxfilesize" : inputStreamOpsbody.saveOptions.maxfilesize
-          },
-          "videostreamOptions" :{
-            "enabled" : inputStreamOpsbody.videostreamOptions.enabled,
-            "restream" : function(inputStreamOpsbody){
-              if (inputStreamOpsbody.videostreamOptions.restream){
-                return "public stream URL";
-              }
-              else{
-                return "NA";
-              }
-            }(inputStreamOpsbody),
-            "fps" : inputStreamOpsbody.videostreamOptions.fps,
-            "videosize" : inputStreamOpsbody.videostreamOptions.videosize,
-            "codec" : inputStreamOpsbody.videostreamOptions.codec,
-            "transport":inputStreamOpsbody.videostreamOptions.transport,
-            "format" : inputStreamOpsbody.videostreamOptions.format
-          },
-          "audiostreamOptions" :{
-            "enabled" : inputStreamOpsbody.audiostreamOptions.enabled
-          }
-        };
-        resolve(responsebody);
-      });
-    }
-
+    var customJob=null;
     // check for all NEEDED fields
-    if(!inputStreamOpsbody.url || !inputStreamOpsbody.type){
-      var err_msg="one or more Needed fileds missing";
-      console.log(err_msg);
-      return res.status(400).send({"_status":"ERR","_message":err_msg});
-    }
+    var inputDataValidation = new Promise(function(resolve,reject){
+      if(!inputStreamOpsbody.url || !inputStreamOpsbody.type){
+        var err_msg="one or more Needed fileds missing";
+        console.log(err_msg);
+        reject(err_msg);
+      }
+      else if(inputStreamOpsbody.videostreamOptions.enabled==false && inputStreamOpsbody.audiostreamOptions.enabled==false){
+        var err_msg="No real job given. Kindly refer to API to give either Audio or Video streaming job!";
+        console.log(err_msg);
+        reject(err_msg);
+      }
+      else{
+        resolve();
+      }
+    });
 
-    if(inputStreamOpsbody.videostreamOptions.enabled==false && inputStreamOpsbody.audiostreamOptions.enabled==false){
-      var err_msg="No real job given. Kindly refer to API to give either Audio or Video streaming job!";
-      console.log(err_msg);
-      return res.status(400).send({"_status":"ERR","_message":err_msg});
-    }
-
-    genResponse(inputStreamOpsbody)
-    .then(function(respbody){
-      //Case I
+    var addStreamOpsJob = new Promise(function(resolve,reject){
       if(inputStreamOpsbody.type=="local" && inputStreamOpsbody.videostreamOptions.restream==false){
         if(inputStreamOpsbody.saveOptions.maxfilesize || inputStreamOpsbody.saveOptions.duration)
         console.log("Running local job for Saving video locally with max file size: "+inputStreamOpsbody.saveOptions.maxfilesize);
         console.log("Running local job for Saving video locally for time duration: "+inputStreamOpsbody.saveOptions.duration);
-        rtspFunctions.streamOpsSave(respbody);
+        //rtspFunctions.streamOpsSave(respbody);
+        jobManager.addVideoSaveJob(inputStreamOpsbody)
+        .then(mjob => {
+          console.log("obtained mjob is",JSON.stringify(mjob));
+          // do any operation if needed on job's object!
+          customJob=mjob;
+          resolve();
+        })
       }
       //Case II
-      if(inputStreamOpsbody.type=="local" && inputStreamOpsbody.videostreamOptions.restream==true){
+      else if(inputStreamOpsbody.type=="local" && inputStreamOpsbody.videostreamOptions.restream==true){
         console.log("Running local job for Streaming video locally");
-        rtspFunctions.streamOpsStream(respbody);
+        //rtspFunctions.streamOpsStream(respbody);
       }
       //Case III
-      if(inputStreamOpsbody.type=="cloud" && inputStreamOpsbody.videostreamOptions.restream==false){
+      else if(inputStreamOpsbody.type=="cloud" && inputStreamOpsbody.videostreamOptions.restream==false){
         console.log("Running job for Saving video on cloud with max file size:",inputStreamOpsbody.saveOptions.maxfilesize);
       }
-
+  
       //Case IV
-      if(inputStreamOpsbody.type=="cloud" && inputStreamOpsbody.videostreamOptions.restream==true){
+      else if(inputStreamOpsbody.type=="cloud" && inputStreamOpsbody.videostreamOptions.restream==true){
         console.log("Running local job for Streaming video on cloud");
       }
-      return res.send(respbody);
-    })
-    .catch(function(err){
-      return res.send({"_status":"ERR","_message":err.message});
+      else{
+        reject("unknown category!!");
+      }
     });
+
+    Promise.all([inputDataValidation,addStreamOpsJob])
+    .then(() => {
+      console.log("returning to user jobid",customJob.id);
+      return res.send({"_status":"SUCCESS","jobID":customJob.id,"_message":"all promises rresolved! some final object with jobid"});
+    })
+    .catch(function(err_msg){
+      return res.send({"_status":"ERR","_message":err_msg});
+    });
+  
   });
 
 router.route('/sampleurls')
