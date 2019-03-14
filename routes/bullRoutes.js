@@ -29,9 +29,9 @@ router.route('/Queues')
 router.route('/Jobs')
     .get(function(req,res){
         jobManager.getJobs()
-        .then(mJobs => {
-            rDebug("list of jobs :",JSON.stringify(mJobs));
-            return res.send(mJobs);
+        .then(jobsResponse => {
+            // rDebug("list of jobs :",JSON.stringify(jobsResponse));
+            return res.send(jobsResponse);
         })
         .catch(err => {
             console.error("Error occured while getting jobs",err);
@@ -42,8 +42,29 @@ router.route('/Jobs')
         console.log('posting on Job with ',JSON.stringify(req.body));
         jobManager.addJob(req.body)
         .then(mjob => {
-            rDebug(`added job is: ${mjob}`);
+            // rDebug(`added job is: ${mjob}`);
             return res.send({"_message":"job addded successfully!","_status":"OK","_data":mjob});
+        })
+        .catch(err => {
+            throw new Error(err);
+        });
+    });
+
+router.route('/Jobs/:id')
+    .get(function(req,res){
+        jobManager.getJob(req.params.id)
+        .then(jobdata => {
+            return res.send(jobdata);
+        })
+        .catch(err => {
+            throw new Error(err);
+        });
+    })
+    .delete(function(req,res){
+        jobManager.deleteJob(req.params.id)
+        .then(status => {
+            console.log("deletion status is",status);
+            return res.send({"_status":"SUCCESS"});
         })
         .catch(err => {
             throw new Error(err);

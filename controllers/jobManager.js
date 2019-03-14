@@ -26,13 +26,49 @@
 
     }
 
+    function deleteJob(jobid,mQueue=videoSaveJobsQueue){
+        console.log(`trying to delete job with id ${jobid}`);
+        return mQueue.getJob(jobid)
+        .then(mjob => {
+            console.log("obtained job for deletion:",mjob);
+            return mjob.remove();
+        })
+        .catch(err => {
+            console.error("Error happened at Deleting job",err);
+            throw new Error(err);
+        });
+    }
+
     function getJobs(mQueue=videoSaveJobsQueue){
-        return mQueue.getJobs();
+        var respobj={
+            'countsData' : null,
+            'jobs':null
+        };
+
+        return mQueue.getJobCounts()
+        .then(countsData => {
+            respobj.countsData = countsData;
+            return mQueue.getJobs();
+        })
+        .then(jobsData => {
+            respobj.jobs = jobsData;
+            console.log("Response object is",respobj);
+            return respobj;
+        })
+        .catch(err => {
+            throw new Error("Eror happend in getting all jobs & status",err);
+        });
+    }
+
+    function getJob(jobid,mQueue=videoSaveJobsQueue){
+        return mQueue.getJob(jobid);
     }
 
     module.exports = {
         addJob : addJob,
-        getJobs : getJobs
+        getJobs : getJobs,
+        getJob : getJob,
+        deleteJob : deleteJob
       };
     
 })();
