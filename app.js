@@ -8,7 +8,7 @@ var compression = require('compression');
 
 var indexRouter = require(path.join(__dirname,'routes','index'));
 var customRouter = require(path.join(__dirname,'routes','customRoutes'));
-
+var bullRouter = require(path.join(__dirname,'routes','bullRoutes'));
 var app = express();
 
 app.use(compression({filter: shouldCompress}));
@@ -30,6 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/v1/rpc', customRouter);
+app.use('/v1/jobmanager',bullRouter);
 app.use('/', indexRouter);
 
 // catch 404 and forward to error handler

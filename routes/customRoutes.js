@@ -3,25 +3,29 @@ var router = express.Router();
 var bodyParser = require('body-parser');
 const uuidv4 = require('uuid/v4');
 const fs = require('fs');
-
-
+const fetch = require('node-fetch');
+const rDebug = require('debug')('routes');
 const onvifFunctions = require('../controllers/onvifFunctions');
 const upnpFunctions = require('../controllers/upnpFunctions');
 const rtspFunctions = require('../controllers/rtspFunctions');
-const jobManager = require('../controllers/jobManager');
-
 var jsonParser = bodyParser.json();
+
+router.use(function(req,res,next){
+  rDebug(`${req.method}    ${req.url}`);
+  next();
+});
 
 
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  rDebug(`${req.method}    ${req.url}    MSG: Test index route!`);
+  return res.send('respond with a resource');
 });
 
 router.route('/discovercameras')
   .get(function(req,res){
     onvifFunctions.discoverCameras()
     .then(devices_list => {
-      console.log("obtained devices list: ",devices_list);
+      rDebug("obtained devices list: ",devices_list);
       return res.send({"status":"success","data":devices_list});
     })
     .catch((error) => {
@@ -70,14 +74,26 @@ router.route('/streamops')
         if(inputStreamOpsbody.saveOptions.maxfilesize || inputStreamOpsbody.saveOptions.duration)
         console.log("Running local job for Saving video locally with max file size: "+inputStreamOpsbody.saveOptions.maxfilesize);
         console.log("Running local job for Saving video locally for time duration: "+inputStreamOpsbody.saveOptions.duration);
-        //rtspFunctions.streamOpsSave(respbody);
-        jobManager.addVideoSaveJob(inputStreamOpsbody)
-        .then(mjob => {
-          console.log("obtained mjob is",JSON.stringify(mjob));
+        console.log("seding a job add request to ",req.headers.host);
+        fetch('http://localhost:8000/v1/jobmanager/Jobs',{
+          method:'POST',
+          body:JSON.stringify(inputStreamOpsbody),
+          headers:{
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(resp => {
+          return resp.json();
+        })
+        .then(resp => {
+          console.log("obtained mjob is",JSON.stringify(resp));
           // do any operation if needed on job's object!
-          customJob=mjob;
+          customJob=resp._data;
           resolve();
         })
+        .catch(err => {
+          throw new Error(err);
+        });
       }
       //Case II
       else if(inputStreamOpsbody.type=="local" && inputStreamOpsbody.videostreamOptions.restream==true){
