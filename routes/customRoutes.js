@@ -40,6 +40,7 @@ router.route('/probestream')
     console.log("Requested URL to probe:",req.body.url);
     rtspFunctions.probeStream(req.body.url)
     .then(function(probedata){
+      console.log("probing finished!")
       return res.send(probedata);
     })
     .catch(function(err){

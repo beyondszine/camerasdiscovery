@@ -17,7 +17,7 @@
         var myjob=mQueue.add(jobsCategory, jobdata); // myjob is a promise to make a job enter in queue.
         return myjob
         .then(function(mjob){ // mjob is now the job itself.
-          console.log(`jobs's id is ${mjob.id} and `);
+          console.log(`jobs's id is ${mjob.id}`);
           return mjob;    
         })
         .catch(err => {

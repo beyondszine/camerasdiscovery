@@ -14,6 +14,9 @@ var app = express();
 app.use(compression({filter: shouldCompress}));
 app.use(helmet());
 
+app.use(express.static( path.join(__dirname, 'public') ) );
+
+
 function shouldCompress (req, res) {
     // console.log("compared!");
   if (req.headers['x-no-compression']) {

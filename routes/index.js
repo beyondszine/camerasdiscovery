@@ -1,6 +1,8 @@
 var express = require('express');
 const os = require('os');
 var router = express.Router();
+const path = require('path');
+router.use(express.static( path.join(__dirname, '../public/html') ) );
 
 /* GET home page. */
 router.use('/info',function(req,res){
@@ -41,7 +43,7 @@ router.use('/config',function(req,res){
   return res.json(configObj);
 });
 
-router.use('/',function(req,res){
+router.use('/sitemap',function(req,res){
   let siteMapObj={
     "_links": {
       "child": [
@@ -71,10 +73,10 @@ router.use('/',function(req,res){
     }
   };
   return res.send(siteMapObj);
-
 });
 
-
-
+router.use('/',function(req,res){
+  res.sendFile('index.html', { root: path.join(__dirname, '../public/html') });
+});
 
 module.exports = router;
