@@ -17,8 +17,8 @@ router.use(function(req,res,next){
 
 
 router.get('/', function(req, res, next) {
-  rDebug(`${req.method}    ${req.url}    MSG: Test index route!`);
-  return res.send('respond with a resource');
+  // rDebug(`${req.method}    ${req.url}    MSG: Test index route!`);
+  return res.send('');
 });
 
 router.route('/discovercameras')
@@ -52,9 +52,8 @@ router.route('/streamops')
   .post(jsonParser,function(req,res){    
     console.log("streamops route called!");
     var inputStreamOpsbody=req.body;
-    var customJob=null;
     // check for all NEEDED fields
-    var inputDataValidation = new Promise(function(resolve,reject){
+    var dataPresenceValidation = new Promise(function(resolve,reject){
       if(!inputStreamOpsbody.url || !inputStreamOpsbody.type){
         var err_msg="one or more Needed fileds missing";
         console.log(err_msg);
@@ -70,60 +69,71 @@ router.route('/streamops')
       }
     });
 
-    var addStreamOpsJob = new Promise(function(resolve,reject){
-      if(inputStreamOpsbody.type=="local" && inputStreamOpsbody.videostreamOptions.restream==false){
-        if(inputStreamOpsbody.saveOptions.maxfilesize || inputStreamOpsbody.saveOptions.duration)
-        console.log("Running local job for Saving video locally with max file size: "+inputStreamOpsbody.saveOptions.maxfilesize);
-        console.log("Running local job for Saving video locally for time duration: "+inputStreamOpsbody.saveOptions.duration);
-        console.log("seding a job add request to ",req.headers.host);
-        fetch('http://localhost:8000/v1/jobmanager/Jobs',{
-          method:'POST',
-          body:JSON.stringify(inputStreamOpsbody),
-          headers:{
-            'Content-Type': 'application/json'
+    // check for all stream specific operations validity like local or cloud
+    var OpsTypeValidation =  new Promise(function(resolve,reject){
+      // local validation
+      if(inputStreamOpsbody.type=="local"){
+        console.log("Running validations for type: local");
+        if(inputStreamOpsbody.saveOptions.maxfilesize || inputStreamOpsbody.saveOptions.duration){
+          // some other validations, if needed to be done.  For ex:
+          if(inputStreamOpsbody.saveOptions.maxfilesize > 100){
+            reject("Max file size reached!  Input less than 100M"); 
           }
-        })
-        .then(resp => {
-          return resp.json();
-        })
-        .then(resp => {
-          console.log("obtained mjob is",JSON.stringify(resp));
-          // do any operation if needed on job's object!
-          customJob=resp._data;
-          resolve();
-        })
-        .catch(err => {
-          throw new Error(err);
-        });
-      }
-      //Case II
-      else if(inputStreamOpsbody.type=="local" && inputStreamOpsbody.videostreamOptions.restream==true){
-        console.log("Running local job for Streaming video locally");
-        //rtspFunctions.streamOpsStream(respbody);
-      }
-      //Case III
-      else if(inputStreamOpsbody.type=="cloud" && inputStreamOpsbody.videostreamOptions.restream==false){
-        console.log("Running job for Saving video on cloud with max file size:",inputStreamOpsbody.saveOptions.maxfilesize);
-      }
-  
-      //Case IV
-      else if(inputStreamOpsbody.type=="cloud" && inputStreamOpsbody.videostreamOptions.restream==true){
-        console.log("Running local job for Streaming video on cloud");
+          // if everything is alright
+          else{
+            resolve();
+          }
+        }
+        else{
+          reject("Invalid Options for type local! Enter either max. file size or duration for saving."); 
+        }
+      } // cloud validation
+      else if(inputStreamOpsbody.type=="cloud"){
+        console.log("Running validations for type: Cloud");
+        console.log("rejecting this as going to implement afterwards");
+        reject("Not yet implemented!");
       }
       else{
-        reject("unknown category!!");
+        console.log("Invalid ops type!");
+        reject("invalid ops type!");
       }
     });
+    
+    // add a stream job
+    var addStreamOpsJob = new Promise(function(resolve){
+      console.log("seding a job add request to ",req.headers.host);
+      fetch('http://localhost:8000/v1/jobmanager/Jobs',{
+        method:'POST',
+        body:JSON.stringify(inputStreamOpsbody),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(resp => {
+        return resp.json();
+      })
+      .then(resp => {
+        console.log("obtained mjob is",JSON.stringify(resp));
+        // do any operation if needed on job's object!
+        resolve(resp._data);
+      })
+      .catch(err => {
+        throw new Error(err);
+      });
+    });
 
-    Promise.all([inputDataValidation,addStreamOpsJob])
+    Promise.all([dataPresenceValidation,OpsTypeValidation])
     .then(() => {
+      console.log("Now adding job for given stream Operation");
+      return addStreamOpsJob;
+    })
+    .then((customJob) => {
       console.log("returning to user jobid",customJob.id);
       return res.send({"_status":"SUCCESS","jobID":customJob.id,"_message":"all promises rresolved! some final object with jobid"});
     })
     .catch(function(err_msg){
       return res.send({"_status":"ERR","_message":err_msg});
     });
-  
   });
 
 router.route('/sampleurls')

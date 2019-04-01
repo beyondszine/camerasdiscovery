@@ -31,7 +31,7 @@ bash run.sh
 docker pull saurabhshandy/camerasdiscovery
 ```
 ---------------------------------------
-Dockerhub : [Link] (https://hub.docker.com/r/saurabhshandy/camerasdiscovery)
+Dockerhub : [Link](https://hub.docker.com/r/saurabhshandy/camerasdiscovery)
 
 ### Routes with Input & Output:
 List of Routes:
@@ -380,9 +380,9 @@ List of Routes:
 Srcs:
 - https://github.com/futomi/node-onvif
 - https://gist.github.com/jsturgis/3b19447b304616f18657
-- [fluent-ffmpeg] (https://github.com/fluent-ffmpeg/node-fluent-ffmpeg)
-- [foscam-streamer] (https://github.com/chpmrc/foscam_streamer)
-- https://sonnati.wordpress.com/2011/08/08/ffmpeg-%E2%80%93-the-swiss-army-knife-of-internet-streaming-%E2%80%93-part-ii/
+- [fluent-ffmpeg](https://github.com/fluent-ffmpeg/node-fluent-ffmpeg)
+- [foscam-streamer](https://github.com/chpmrc/foscam_streamer)
+- [ffmpeg-intro](https://sonnati.wordpress.com/2011/08/08/ffmpeg-%E2%80%93-the-swiss-army-knife-of-internet-streaming-%E2%80%93-part-ii)
 - https://ffmpeg.org/
 - https://github.com/phoboslab/jsmpeg
 - https://stackoverflow.com/questions/32814161/how-to-make-spoiler-text-in-github-wiki-pages/39920717#39920717 ( for most import README formatting. lol)
