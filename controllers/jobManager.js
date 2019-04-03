@@ -5,15 +5,23 @@
     // TODO: to have interface for 'Jobs' & 'Queues' objects both.
 
 
-    const queueName='VideoSaveJobs';
+    const saveQueueName='VideoSaveJobs';
+    const streamQueueName='VideoStreamJobs';
     const jobsCategory='VideoJobRunner';
     const redisURI = 'redis://127.0.0.1:6379';
 
     const Queue = require('bull');
-    const videoSaveJobsQueue = new Queue(queueName, redisURI);
+    const videoSaveJobsQueue = new Queue(saveQueueName, redisURI);
+    const videoStreamJobsQueue = new Queue(streamQueueName, redisURI);
+
 
     function addJob(jobdata,mQueue=videoSaveJobsQueue){
         console.log('adding job for: ', jobdata);
+        if(jobdata.type=="local" && jobdata.videostreamOptions.restream==true){
+            mQueue = videoStreamJobsQueue;
+            console.log("adding job to:",mQueue);
+        }
+
         var myjob=mQueue.add(jobsCategory, jobdata); // myjob is a promise to make a job enter in queue.
         return myjob
         .then(function(mjob){ // mjob is now the job itself.

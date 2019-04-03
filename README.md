@@ -323,6 +323,57 @@ List of Routes:
     </p>
   </details>
 
+- `/getstreams` : Get rtsp stream URL for Onvif Cameras.  Accepts list or single Onvif Object.
+  <details>
+    <summary>
+      <i>Code: </i>
+    </summary>
+    <p>
+
+    ```sh
+    curl --request POST \
+      --url http://localhost:8000/v1/rpc/getstreams \
+      --header 'content-type: application/json' \
+      --data '[
+      {
+      "xaddr" : "http://192.168.1.99:36000/onvif/device_service",
+      "user" : "username",
+      "pass" : "password"
+      },
+      {
+      "xaddr" : "http://192.168.1.113:36000/onvif/device_service",
+      "user" : "username",
+      "pass" : "password"
+      }
+    ]'
+    ```
+    </p>
+  </details>
+  <details>
+    <summary>
+      <i>Sample Output: </i>
+    </summary>
+    <p>
+
+    ```sh
+    [
+      {
+        "xaddr": "http://192.168.1.113:36000/onvif/device_service",
+        "user": "admin",
+        "pass": "admin",
+        "url": "rtsp://192.168.1.113:554/live/av0?user=admin&passwd=admin"
+      },
+      {
+        "xaddr": "http://192.168.1.99:36000/onvif/device_service",
+        "user": "admin",
+        "pass": "admin",
+        "url": "rtsp://192.168.1.99:554/live/av0?user=admin&passwd=admin"
+      }
+    ]
+    ```
+    </p>
+  </details>  
+
 
 - `/sampleurls` : Don't have streams ??  This route will give you stuff to play around.
   <details>

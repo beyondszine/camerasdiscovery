@@ -34,6 +34,56 @@ router.route('/discovercameras')
     });
   });
 
+router.route('/getstreams')
+  .post(jsonParser, function(req,res){
+    var mresp=[];
+    var parray=[];
+
+    var getStreamPromise = function(obj){
+      return new Promise(function(resolve,reject){
+        onvifFunctions.getStream(obj)
+        .then( (rtspurl) =>{
+          //mods to object recieved.
+          return Object.assign(obj,{"url":rtspurl});
+        })
+        .then( (toadd) => {
+          // console.log("adding obj in resp array",toadd);
+          mresp.push(toadd);
+          resolve();
+        })
+        .catch(err => {
+          throw new Error(err);
+        });
+      });
+    };
+
+    if(req.body instanceof Array){
+      console.log("array recieved!");
+      req.body.forEach(function(devObj){
+        parray.push( getStreamPromise(devObj) );
+      });
+      Promise.all(parray)
+      .then( () => {
+        console.log("Promises Resolved: ",parray.length);
+        console.log("resp obj:",mresp);
+        return res.send(mresp);
+      })
+      .catch(function(err){
+        throw new Error(err);
+      });
+    }
+    else {
+      console.log("single object recieved!",req.body);
+      return onvifFunctions.getStream(req.body)
+      .then( (rtspurl) =>{
+        return res.send(Object.assign( req.body,{"url":rtspurl}) );
+      })
+      .catch(err => {
+        throw new Error(err);
+      });
+    }
+  });
+
 router.route('/probestream')
   .post(jsonParser,function(req,res){
     console.log("Probe stream called!");
@@ -65,6 +115,7 @@ router.route('/streamops')
         reject(err_msg);
       }
       else{
+        console.log("Data presence Validation Passed!");
         resolve();
       }
     });
@@ -72,8 +123,8 @@ router.route('/streamops')
     // check for all stream specific operations validity like local or cloud
     var OpsTypeValidation =  new Promise(function(resolve,reject){
       // local validation
-      if(inputStreamOpsbody.type=="local"){
-        console.log("Running validations for type: local");
+      console.log(`Running validations for type: ${inputStreamOpsbody.type}, Restreaming:,${inputStreamOpsbody.videostreamOptions.restream}`);
+      if(inputStreamOpsbody.type=="local" && inputStreamOpsbody.videostreamOptions.restream==false){
         if(inputStreamOpsbody.saveOptions.maxfilesize || inputStreamOpsbody.saveOptions.duration){
           // some other validations, if needed to be done.  For ex:
           if(inputStreamOpsbody.saveOptions.maxfilesize > 100){
@@ -81,21 +132,27 @@ router.route('/streamops')
           }
           // if everything is alright
           else{
+            console.log("Valid Ops type found! Resolving");
             resolve();
           }
         }
         else{
           reject("Invalid Options for type local! Enter either max. file size or duration for saving."); 
         }
-      } // cloud validation
+      }
+      else if(inputStreamOpsbody.type=="local" && inputStreamOpsbody.videostreamOptions.restream==true){
+        // TODO: necessary checks for re-stream & set defaults
+        console.log("Valid Ops type found! Resolving");
+        resolve();
+      }
+      // cloud validation
       else if(inputStreamOpsbody.type=="cloud"){
-        console.log("Running validations for type: Cloud");
         console.log("rejecting this as going to implement afterwards");
         reject("Not yet implemented!");
       }
       else{
-        console.log("Invalid ops type!");
-        reject("invalid ops type!");
+        console.log("rejecting this as going to implement afterwards");
+        reject("Not yet implemented!");
       }
     });
     
@@ -115,6 +172,7 @@ router.route('/streamops')
       .then(resp => {
         console.log("obtained mjob is",JSON.stringify(resp));
         // do any operation if needed on job's object!
+        console.log("job's data:",resp._data);
         resolve(resp._data);
       })
       .catch(err => {
