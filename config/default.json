@@ -1,0 +1,48 @@
+{
+    "discoveryOptions" :{
+        
+    },
+    "videoOptions": {
+
+    },
+    "audioOptions": {
+
+    },
+    "streamingOptions": {
+
+    },
+    "arenaUIOptions":{
+        "arenaServerConfig" :{
+            "port": 4567,
+            "host" : "0.0.0.0",
+            "basePath": "/",
+            "disableListen": true,
+            "useCdn" : false
+        },
+        "arenaQueueConfig" : {
+            "port" : 6379,
+            "host": "127.0.0.1",
+            "hostId" : "localone",
+            "queues": [
+                {
+                "name": "delayedJobs",
+                "port": 6379,
+                "host": "127.0.0.1",
+                "hostId": "localone"
+                },
+                {
+                "name": "VideoSaveJobs",
+                "port": 6379,
+                "host": "127.0.0.1",
+                "hostId": "localone"
+                },
+                {
+                "name": "VideoStreamJobs",
+                "port": 6379,
+                "host": "127.0.0.1",
+                "hostId": "localone"
+                }
+            ]
+        
+    }
+}
