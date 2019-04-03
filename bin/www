@@ -40,7 +40,7 @@ wsserver.on('request', wsServerRequest);
 const healthCheckOptions = {
   healthChecks: {
     '/health': async function () {
-        console.log('health check ran!'); 
+        // console.log('health check ran!'); 
         // Fun thing: if the uptime of the program is odd/even return success or error response.
         if(Math.floor(process.uptime()%2)){
           return Promise.resolve();
@@ -157,6 +157,7 @@ process.on('uncaughtException', function (er) {
 function wsServerRequest(request) {
 	var conn = request.accept(null, request.origin);
 	conn.on("message", function(message) {
+		// console.log("msg recvd:",message)
 		if(message.type !== 'utf8') {
 			return;
 		}
@@ -175,6 +176,9 @@ function wsServerRequest(request) {
 			ptzStop(conn, params);
 		} else if(method === 'ptzHome') {
 			ptzHome(conn, params);
+		} else if(method === 'getRTSPurl') {
+			// console.log("rtsp url being requested!");
+			getRTSPurl(conn, params);
 		}
 	});
 
@@ -212,6 +216,21 @@ function startDiscovery(conn) {
 		let res = {'id': 'connect', 'error': error.message};
 		conn.send(JSON.stringify(res));
 	});
+}
+
+function getRTSPurl(conn,params){
+	// console.log('get rtsp url called!');
+	var res = {'id': 'getRTSPurl'};
+	var device = devices[params.address];
+	if(!device) {
+		var res = {'id': 'fetchSnapshot', 'error': 'The specified device is not found: ' + params.address};
+		conn.send(JSON.stringify(res));
+		return;
+	}
+	let url = device.getUdpStreamUrl();
+	// console.log(url);
+	res['result']={"rtspurl":url};
+	conn.send(JSON.stringify(res));
 }
 
 function connect(conn, params) {

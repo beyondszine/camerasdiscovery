@@ -102,6 +102,7 @@ OnvifManager.prototype.initWebSocketConnection = function() {
 		var data = JSON.parse(res.data);
 		var id = data.id;
 		if(id === 'startDiscovery') {
+			console.log(res);
 			this.startDiscoveryCallback(data);
 		} else if(id === 'connect') {
 			this.connectCallback(data);
@@ -113,6 +114,8 @@ OnvifManager.prototype.initWebSocketConnection = function() {
 			this.ptzStopCallback(data);
 		} else if(id === 'ptzHome') {
 			this.ptzHomeCallback(data);
+		} else if(id === 'getRTSPurl') {
+			this.getRTSPurlCallback(data);
 		}
 	}.bind(this);
 };
@@ -178,6 +181,17 @@ OnvifManager.prototype.startDiscoveryCallback = function(data) {
 	}
 };
 
+OnvifManager.prototype.getRTSPurl = function() {
+	console.log("requesting rtsp url for `this` device");
+	this.sendRequest('getRTSPurl', {
+		'address': this.selected_address
+	});
+};
+
+OnvifManager.prototype.getRTSPurlCallback = function(data) {
+	console.log("RTSP url: ", data);
+};
+
 OnvifManager.prototype.connectCallback = function(data) {
 	this.el['btn_con'].prop('disabled', false);
 	if(data.result) {
@@ -187,6 +201,7 @@ OnvifManager.prototype.connectCallback = function(data) {
 		this.el['frm_con'].hide();
 		this.el['div_pnl'].show();
 		this.device_connected = true;
+		this.getRTSPurl();
 	} else if(data.error) {
 		this.el['div_pnl'].hide();
 		this.el['sel_dev'].prop('disabled', false);
