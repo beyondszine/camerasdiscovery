@@ -4,25 +4,31 @@
     // starting with only one Queue as of now then will make this under Manager itself to CRUD on Queues.
     // TODO: to have interface for 'Jobs' & 'Queues' objects both.
 
-
-    const saveQueueName='VideoSaveJobs';
-    const streamQueueName='VideoStreamJobs';
-    const jobsCategory='VideoJobRunner';
+    const VideoJobsQueueName="VideoSaveJobs";
+    const RelayServerJobsQueueName="RelayServerJobs";
+    const VideoJobsType="SaveNStream";
+    const RelayServerJobsType = "RelayServers";
     const redisURI = 'redis://127.0.0.1:6379';
 
     const Queue = require('bull');
-    const videoSaveJobsQueue = new Queue(saveQueueName, redisURI);
-    const videoStreamJobsQueue = new Queue(streamQueueName, redisURI);
+    // const ffmpegJobsQueue = new Queue(appConfig.VideoJobsQueueName, redisURI);
+    // const relayServerJobsQueue = new Queue(appConfig.RelayServerJobsQueueName, redisURI);
+  
+    const videoSaveJobsQueue = new Queue(VideoJobsQueueName, redisURI);
+    const relayServerJobsQueue = new Queue(RelayServerJobsQueueName, redisURI);
 
 
     function addJob(jobdata,mQueue=videoSaveJobsQueue){
         console.log('adding job for: ', jobdata);
+        var jobsType=VideoJobsType;
         if(jobdata.type=="local" && jobdata.videostreamOptions.restream==true){
-            mQueue = videoStreamJobsQueue;
-            console.log("adding job to:",mQueue);
+            if(req.body.queueName=="RelayServerJobs"){
+                mQueue = relayServerJobsQueue;
+                jobsType = RelayServerJobsType;
+                console.log("adding job to:",mQueue);
+            }
         }
-
-        var myjob=mQueue.add(jobsCategory, jobdata); // myjob is a promise to make a job enter in queue.
+        var myjob=mQueue.add(jobsType, jobdata); // myjob is a promise to make a job enter in queue.
         return myjob
         .then(function(mjob){ // mjob is now the job itself.
           console.log(`jobs's id is ${mjob.id}`);

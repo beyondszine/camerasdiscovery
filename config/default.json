@@ -1,4 +1,33 @@
 {
+    "VideoJobsQueueName": "VideoSaveJobs",
+    "VideoJobsType" : "SaveNStream",
+    "RelayServerJobsQueueName" : "RelayServerJobs",
+    "RelayServerJobsType": "RelayServers",
+    "QueueOptions": {
+        "limiter": {
+            "max": 2,      
+            "duration": 10000,
+            "bounceBack": false
+        },
+        "redis": {
+            "type": "redis",
+            "host": "127.0.0.1",
+            "port":6379,
+            "db": "",
+            "password" : ""
+        },
+        "prefix": "bull",
+        "defaultJobOptions": {},
+        "settings": {
+            "lockDuration": 30000,
+            "stalledInterval":30000,
+            "maxStalledCount":1,
+            "guardInterval":5000,
+            "retryProcessDelay":5000,
+            "backoffStrategies":{},
+            "drainDelay":5
+          }
+    },
     "discoveryOptions" :{
         
     },
