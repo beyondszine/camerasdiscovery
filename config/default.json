@@ -72,7 +72,7 @@
                   }
                 },
                 {
-                "name": "VideoStreamJobs",
+                "name": "RelayServerJobs",
                 "hostId": "localone",
                 "redis": {
                     "port": 6379,

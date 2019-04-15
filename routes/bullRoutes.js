@@ -39,7 +39,7 @@ router.route('/Jobs')
         });
     })
     .post(jsonParser,function(req,res){
-        console.log('posting on Job with ',JSON.stringify(req.body));
+        console.log('posted Job with ',JSON.stringify(req.body));
         jobManager.addJob(req.body)
         .then(mjob => {
             // rDebug(`added job is: ${mjob}`);

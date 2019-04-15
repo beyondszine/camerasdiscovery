@@ -22,12 +22,11 @@
         console.log('adding job for: ', jobdata);
         var jobsType=VideoJobsType;
         if(jobdata.type=="local" && jobdata.videostreamOptions.restream==true){
-            if(req.body.queueName=="RelayServerJobs"){
-                mQueue = relayServerJobsQueue;
-                jobsType = RelayServerJobsType;
-                console.log("adding job to:",mQueue);
-            }
+            console.log("Local & Re-stream: True");
+            mQueue = relayServerJobsQueue;
+            jobsType = RelayServerJobsType;
         }
+        console.log("adding job to:",mQueue);
         var myjob=mQueue.add(jobsType, jobdata); // myjob is a promise to make a job enter in queue.
         return myjob
         .then(function(mjob){ // mjob is now the job itself.
