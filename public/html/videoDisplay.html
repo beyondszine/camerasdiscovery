@@ -11,12 +11,20 @@
 	
 </head>
 <body>
+	<input type="text" id="rtspurl" name="rtspurl" value="RTSP url.."><br>
+	<input type="submit" value="Submit" onclick="myfun();">		
 	<canvas id="video-canvas"></canvas>
 	<script type="text/javascript" src="jsmpeg.min.js"></script>
 	<script type="text/javascript">
+	var myurl="";
+	function myfun(){
+		console.log("myfun called!");
 		var canvas = document.getElementById('video-canvas');
-		var url = 'ws://192.168.1.119:10001/';
-		var player = new JSMpeg.Player(url, {canvas: canvas});
+		myurl = document.getElementById("rtspurl").value;
+		console.log(myurl);
+		var player = new JSMpeg.Player(myurl, {canvas: canvas});
+	}
+		
 	</script>
 </body>
 </html>

@@ -10,6 +10,7 @@
 - [x] Probestream : Probe a stream by giving URL as parameter.  ffprobe response is returend as json giving details like 
 - [x] Stream-ops : Pass a streamURL, 
   - [x] Save the video file from stream locally.
+  - [x] Respond with html video tag playable stream. (via /mp4stream)
   - [ ] Save the video file from stream on cloud.
   - [x] Get Image file from stream as Response. (One shot usage)
   - [ ] Get Image Steam from given stream as Response.  (BULK USAGE)
