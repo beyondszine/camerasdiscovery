@@ -437,6 +437,8 @@ Srcs:
 - [ffmpeg-intro](https://sonnati.wordpress.com/2011/08/08/ffmpeg-%E2%80%93-the-swiss-army-knife-of-internet-streaming-%E2%80%93-part-ii)
 - https://ffmpeg.org/
 - https://github.com/phoboslab/jsmpeg
+- https://trac.ffmpeg.org/wiki/StreamingGuide
+- https://trac.ffmpeg.org/wiki/Encode/H.264
 - https://stackoverflow.com/questions/32814161/how-to-make-spoiler-text-in-github-wiki-pages/39920717#39920717 ( for most import README formatting. lol)
 
 

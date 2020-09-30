@@ -51,6 +51,7 @@
     "nat-upnp-2": "^3.0.3",
     "node-fetch": "^2.3.0",
     "node-onvif": "^0.1.7",
+    "nodemon": "^2.0.4",
     "uuid": "^3.3.2",
     "websocket": "^1.0.28",
     "ws": "^6.1.4",

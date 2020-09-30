@@ -48,8 +48,8 @@
                 //     "_status": "ERR",
                 //     "_message": emsg
                 // };
-                console.log('Error:', err);
-                sock.status(400).end(JSON.stringify(err));
+                console.log('Error occured in ffmpg process:', err, typeof(err));
+                // sock.status(400).send(err);
 
             })
             .on('end', function(stdout, stderr) {
@@ -58,8 +58,14 @@
             })
             .noAudio()
             // .size('?x480')
+            .inputOptions('-hwaccel auto')
             .outputOptions('-vcodec copy')
+            // .outputOptions('-preset ultrafast')
+            .outputOptions('-crf 30')
+            .outputOptions('-tune zerolatency')
+            // .outputOptions('-bufsize 5M')
             .outputOptions('-f mp4')
+            // .outputOptions('-s 640x480')
             .outputOptions("-movflags frag_keyframe+empty_moov+faststart")
             .outputOptions('-frag_duration 3600')
             .pipe(sock)
@@ -231,6 +237,7 @@
                             "stack": JSON.stringify(err)
                         };
                         console.log('Error:' + JSON.stringify(error_msg));
+
                     })
                     .on('end', function(stdout, stderr) {
                         console.log('Image Saved Successfully !');
