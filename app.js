@@ -4,6 +4,7 @@ var path = require('path');
 var express = require('express');
 var logger = require('morgan');
 var compression = require('compression');
+var cors = require('cors');
 
 
 var indexRouter = require(path.join(__dirname,'routes','index'));
@@ -16,6 +17,9 @@ app.use(compression({filter: shouldCompress}));
 app.use(helmet());
 
 app.use(express.static( path.join(__dirname, 'public') ) );
+
+// app.options('*', cors()) // included before other routes
+app.use(cors())
 
 
 function shouldCompress (req, res) {
@@ -32,6 +36,8 @@ function shouldCompress (req, res) {
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+
 
 app.use('/v1/rpc', customRouter);
 app.use('/v1/jobmanager',bullRouter);

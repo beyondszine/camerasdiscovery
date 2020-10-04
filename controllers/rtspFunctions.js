@@ -65,6 +65,7 @@
             .outputOptions('-tune zerolatency')
             // .outputOptions('-bufsize 5M')
             .outputOptions('-f mp4')
+            .duration(600)
             // .outputOptions('-s 640x480')
             .outputOptions("-movflags frag_keyframe+empty_moov+faststart")
             .outputOptions('-frag_duration 3600')

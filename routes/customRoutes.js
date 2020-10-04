@@ -51,9 +51,9 @@ router.route('/getstreams')
                         mresp.push(toadd);
                         resolve();
                     })
-                    .catch(err => {
-                        throw new Error(err);
-                    });
+                    // .catch(err => {
+                    //     throw new Error(err);
+                    // });
             });
         };
 
