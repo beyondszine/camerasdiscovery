@@ -69,16 +69,23 @@ router.route('/getstreams')
                     return res.send(mresp);
                 })
                 .catch(function(err) {
+                    console.log('error occured in all promises for getting stream', err);
                     throw new Error(err);
                 });
         } else {
             console.log("single object recieved!", req.body);
-            return onvifFunctions.getStream(req.body)
+            onvifFunctions.getStream(req.body)
                 .then((rtspurl) => {
                     return res.send(Object.assign(req.body, { "url": rtspurl }));
                 })
                 .catch(err => {
-                    throw new Error(err);
+                    // throw new Error(err);
+                    console.log('error while getting stream', err, typeof(err));
+                    console.log('error in string', err.toString());
+                    return res.status(400).send({
+                        err: "ERR",
+                        msg: err.toString()
+                    });
                 });
         }
     });
