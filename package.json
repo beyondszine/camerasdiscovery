@@ -5,7 +5,8 @@
     "scripts": {
         "start": "HOST='0.0.0.0' nodemon ./bin/www",
         "test": "snyk test",
-        "devstart": "DEBUG=* nodemon -i *.ts -i *.log -i *.md ./bin/www"
+        "devstart": "DEBUG=* nodemon -i *.ts -i *.log -i *.md ./bin/www",
+        "multiarchbuildpush": "git push -o ci.variable='CI_BUILDX_ARCHS=linux/amd64,linux/arm64'"
     },
     "homepage": "https://github.com/beyondszine/camerasdiscovery",
     "license": "SEE LICENSE IN <LICENSE>",
