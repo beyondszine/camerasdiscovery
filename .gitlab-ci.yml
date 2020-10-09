@@ -1,0 +1,84 @@
+image: docker:git
+services:
+  - docker:dind
+
+stages:
+  - notify
+  - build
+  - cleanup
+
+crossbuild:
+  image: docker:latest
+  services:
+  - docker:dind
+  stage: build
+  script:
+    # install depends
+    - apk add curl jq
+
+    # enable experimental buildx features
+    - export DOCKER_BUILDKIT=1
+    - export DOCKER_CLI_EXPERIMENTAL=enabled
+
+    # Download latest buildx bin from github
+    - mkdir -p ~/.docker/cli-plugins/
+    - BUILDX_LATEST_BIN_URI=$(curl -s -L https://github.com/docker/buildx/releases/latest | grep 'linux-amd64' | grep 'href' | sed 's/.*href="/https:\/\/github.com/g; s/amd64".*/amd64/g')
+    - curl -s -L ${BUILDX_LATEST_BIN_URI} -o ~/.docker/cli-plugins/docker-buildx
+    - chmod a+x ~/.docker/cli-plugins/docker-buildx
+
+    # Get and run the latest docker/binfmt tag to use its qemu parts
+    - BINFMT_IMAGE_TAG=$(curl -s https://registry.hub.docker.com/v2/repositories/docker/binfmt/tags | jq '.results | sort_by(.last_updated)[-1].name' -r)
+    - docker run --rm --privileged docker/binfmt:${BINFMT_IMAGE_TAG}
+
+    # create the multibuilder
+    - docker buildx create --name multibuilder
+    - docker buildx use multibuilder
+
+    # login to a registry
+    - mkdir -p /root/.docker
+    - cp "$DOCKER_AUTH_CONFIG" /root/.docker/config.json
+
+    - docker login registry.gitlab.com
+    - if [ ! -z "$CI_BUILDX_ARCHS" ]; then export PLATFORMS=$CI_BUILDX_ARCHS;else PLATFORMS=linux/amd64; fi
+    - echo "building for platforms:" $PLATFORMS
+    - docker buildx build --platform $PLATFORMS -t $DOCKER_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_REF_NAME . --push
+    - docker buildx imagetools inspect $DOCKER_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_REF_NAME
+  only:
+    - staging
+    - tags
+    - master
+
+# build:
+#   stage: build
+#   script:
+#     - printenv
+#     - mkdir -p /root/.docker
+#     - cp "$DOCKER_AUTH_CONFIG" /root/.docker/config.json
+#     - docker build -t "$DOCKER_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_REF_NAME" .
+#     - docker push "$DOCKER_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_REF_NAME"
+#   only:
+#     - staging
+#     - master
+
+
+cleanup_failure_job:
+  stage: cleanup
+  image: alpine
+  script:
+    - echo "this cleanup job runs on failure"
+  when: on_failure
+
+cleanup_success_job:
+  stage: cleanup
+  image: alpine
+  script:
+    - echo "this cleanup job runs on success"
+  when: on_success
+
+notify_me:
+  stage: notify
+  image: alpine
+  allow_failure: true
+  script: 
+    - echo "notifications hooks here"
+  when: always
