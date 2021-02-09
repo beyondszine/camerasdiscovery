@@ -28,10 +28,18 @@
         })
     }
 
-    function rtspTomp4Stream(myurl, sock) {
+    function rtspTomp4Stream(myurl, res, req) {
+        let ttl = parseInt(req.query.ttl) || 600;
+        let videoWidth = parseInt(req.query.width) || 720;
+
         ffmpeg(myurl)
             .on('start', function(commandLine) {
                 console.log('Spawned Ffmpeg with command: ' + commandLine);
+                req.on('close', (err) => {
+                    console.log('request closed by user!', err);
+                    this.kill();
+                    // Sending a signal that terminates the process will result in the error event being emitted.
+                })
             })
             .on('codecData', function(data) {
                 console.log('Input is ' + data.audio + ' audio ' + 'with ' + data.video + ' video');
@@ -43,33 +51,28 @@
             //     console.log('Stderr output: ' + stderrLine);
             // })
             .on('error', function(err, stdout, stderr) {
-                // var emsg = err.message.split(':')[3];
-                // var error_msg = {
-                //     "_status": "ERR",
-                //     "_message": emsg
-                // };
-                console.log('Error occured in ffmpg process:', err, typeof(err));
-                // sock.status(400).send(err);
-
+                res.end();
             })
             .on('end', function(stdout, stderr) {
                 console.log('Transcoding succeeded !');
-                sock.end();
+                res.end();
             })
             .noAudio()
             // .size('?x480')
             .inputOptions('-hwaccel auto')
-            .outputOptions('-vcodec copy')
+            // .outputOptions('-vcodec copy')
             // .outputOptions('-preset ultrafast')
-            .outputOptions('-crf 30')
+            // .outputOptions('-crf 2')
             .outputOptions('-tune zerolatency')
             // .outputOptions('-bufsize 5M')
             .outputOptions('-f mp4')
-            .duration(600)
-            // .outputOptions('-s 640x480')
+            .duration(ttl)
+            .outputOptions(`-filter:v scale=${videoWidth}:-2`)
+            // .outputOptions(`-r 25`)
+            // .outputOptions('-vf scale="720:-1"')
             .outputOptions("-movflags frag_keyframe+empty_moov+faststart")
             .outputOptions('-frag_duration 3600')
-            .pipe(sock)
+            .pipe(res)
     }
 
     function streamOpsSave(streamopsObject) {

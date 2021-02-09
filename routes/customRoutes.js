@@ -204,10 +204,13 @@ router.route('/sampleurls')
     });
 
 
+
+// /v1/rpc/mp4stream?camerastream=rtsp%3A%2F%2Fadmin%3AVedaLabs%40192.168.0.85%3A554%2FStreaming%2FChannels%2F101%3Ftransportmode%3Dunicast%26profile%3DProfile_1
 router.route('/mp4stream')
     .get(async(req, res) => {
-        console.log('get mp4 stream called!');
+        console.log('get mp4 stream called!', req.query);
         let rtspUrl = req.query.camerastream;
+
         if (!rtspUrl) {
             return res.status(400).send({
                 status: "err",
@@ -224,8 +227,12 @@ router.route('/mp4stream')
         };
 
         let allHeaders = Object.assign({}, probeheaders, streamHeaders);
+        // res.setHeader('Access-Control-Allow-Origin', '*');
+        // res.setHeader('Connection', 'Keep-Alive');
+        // res.setHeader('Content-Type', 'video/mp4');
+
         res.writeHead(200, allHeaders);
-        rtspFunctions.rtspTomp4Stream(rtspUrl, res);
+        rtspFunctions.rtspTomp4Stream(rtspUrl, res, req);
     })
 
 router.route('/getimage')
