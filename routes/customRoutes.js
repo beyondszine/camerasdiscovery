@@ -313,7 +313,7 @@ router.route('/liveliness')
 
         Promise.all(camsStatus)
             .then(camstatuses => {
-                console.log("all cams status",camstatuses);
+                console.debug("all cams status",camstatuses);
                 return res.send(camstatuses);
             })
     })

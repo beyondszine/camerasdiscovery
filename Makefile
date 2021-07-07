@@ -9,7 +9,7 @@ servelocal:
 
 pushmultiarch: 
 	echo "building multiarch things"
-	git push -o ci.variable="CI_BUILDX_ARCHS=${CI_BUILDX_ARCHS}" gl master
+	# git push -o ci.variable="CI_BUILDX_ARCHS=${CI_BUILDX_ARCHS}" gl master
 	git push -o ci.variable="CI_BUILDX_ARCHS=${CI_BUILDX_ARCHS}" origin master
 
 dockerlocalbuild:
