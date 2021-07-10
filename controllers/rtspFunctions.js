@@ -31,7 +31,7 @@
     function rtspTomp4Stream(myurl, res, req) {
         let ttl = parseInt(req.query.ttl) || 600;
         let videoWidth = parseInt(req.query.width) || 720;
-
+        let tuneSetting = req.query.tuneSetting || 'fastdecode' ;
         ffmpeg(myurl)
             .on('start', function(commandLine) {
                 console.log('Spawned Ffmpeg with command: ' + commandLine);
@@ -63,7 +63,7 @@
             // .outputOptions('-vcodec copy')
             // .outputOptions('-preset ultrafast')
             // .outputOptions('-crf 2')
-            .outputOptions('-tune zerolatency')
+            .outputOptions(`-tune ${tuneSetting}`)
             // .outputOptions('-bufsize 5M')
             .outputOptions('-f mp4')
             .duration(ttl)
