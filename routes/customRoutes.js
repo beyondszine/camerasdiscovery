@@ -303,7 +303,7 @@ router.route('/liveliness')
         console.log("json parsed cameraslist",camerasList);
         let camsStatus = camerasList.map( (cams) => {
             return new Promise( async (resolv,rejct) => {
-                let status = await isPortReachable(cams.port, {host: cams.address} );
+                let status = await isPortReachable(cams.port, {host: cams.address, timeout: 3000} );
                 resolv({
                     status: status,
                     ...cams
