@@ -192,7 +192,7 @@ function wsServerRequest(request) {
 
 var devices = {};
 function startDiscovery(conn) {
-	devices = {};
+	// devices = {};
 	let names = {};
 	onvif.startProbe().then((device_list) => {
 		device_list.forEach((device) => {
@@ -272,6 +272,10 @@ function fetchSnapshot(conn, params) {
 		conn.send(JSON.stringify(res));
 		return;
 	}
+	// console.debug('----------------------------------------------------------');
+	// console.debug("all devices:",devices);
+	// console.debug('----------------------------------------------------------');
+	// console.debug('selected device',device);
 	device.fetchSnapshot((error, result) => {
 		var res = {'id': 'fetchSnapshot'};
 		if(error) {

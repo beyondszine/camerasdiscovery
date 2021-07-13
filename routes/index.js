@@ -3,7 +3,7 @@ const os = require('os');
 var router = express.Router();
 const path = require('path');
 
-router.use('/public', express.static(path.join(__dirname, '../public/html')));
+router.use('/', express.static(path.join(__dirname, '../public')));
 
 /* GET home page. */
 router.use('/info', function(req, res) {
@@ -76,13 +76,15 @@ router.use('/sitemap', function(req, res) {
 });
 
 router.use('/streamview', function(req, res) {
-    res.sendFile('stream.html', { root: path.join(__dirname, '../public/html') });
+    return res.sendFile('stream.html', { root: path.join(__dirname, '../public') });
 });
 
 router.use('/discover', function(req, res) {
-    res.sendFile('index.html', { root: path.join(__dirname, '../public/html') });
+    return res.sendFile('index.html', { root: path.join(__dirname, '../public') });    
 });
 
+
+// TODO: redirect this route to all info or documentation page.
 router.use('/', (req, res) => {
     console.log('root route hit!');
     return res.send({
