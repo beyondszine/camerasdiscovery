@@ -1,9 +1,15 @@
 tml,body {
-	font-family: "游ゴシック", YuGothic, "ヒラギノ角ゴ Pro", "Hiragino Kaku Gothic Pro", "メイリオ", "Meiryo", sans-serif;
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
+	padding: 50px;
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+
+  a {
+	color: #00B7FF;
+  }
+  
 h1 {
 	margin: 0;
 }
