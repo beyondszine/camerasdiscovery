@@ -1,42 +1,14 @@
-# version: "2"
-# services:
-#   web:
-#     image: redis
-#     ports:
-#       - "6379:6379"
-#     volumes:
-#       - ./Data/images:/data/images
-#     restart: always
-#     depends_on: 
-#       - db
-#   db:
-#     image: mongo:3.0.2
-#     volumes:
-#       - ./Data/mongodb:/data/db
-#     restart: always
-#   camdiscover:
-#     image: saurabhshandy/camerasdiscovery:latest
-#     ports:
-#       - "8001:8000"
-#     restart: always
-#   mongo-express:
-#     image: mongo-express
-#     restart: always
-#     links:
-#       - db:mongo
-#     ports:
-#       - 8081:8081
-#     environment:
-#       ME_CONFIG_BASICAUTH_USERNAME: root
-#       ME_CONFIG_BASICAUTH_PASSWORD: nasscom123
-#     depends_on: 
-#       - db
-#   nginx:
-#     image: "nginx:1.13.5"
-#     restart: always
-#     ports:
-#       - "80:80"
-#     volumes:
-#       - ./nginx/conf.d:/etc/nginx/conf.d
-#     depends_on: 
-#       - web
+version: "2"
+services:
+    camdiscovery:
+        # image: saurabhshandy/camerasdiscovery:latest 
+        image: registry.gitlab.com/macherlabs/edgedevice/camerasdiscovery:master
+        container_name: camdiscovery
+        ports:
+            - "8000:8000"
+        restart: always
+        network_mode: host
+        logging:
+        driver: "json-file"
+        options:
+            max-size: "12000m"

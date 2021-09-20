@@ -16,7 +16,8 @@
   - [ ] Get Image Steam from given stream as Response.  (BULK USAGE)
   - [ ] Restream the resource locally or on cloud.
   - [ ] Access the stream via websocket.
-  - [ ] Access the stream on HLS.  
+  - [ ] Access the stream on HLS.
+- [x] Health check call for camera via strategies: 
     
   
 
@@ -424,6 +425,40 @@ List of Routes:
 
     ```sh
     ## Nothing yet.
+    ```
+    </p>
+  </details>
+
+
+
+
+
+
+- `/liveliness` : This method is to check the liveliness of the cameras.  Three strategies are put in place.
+  <details>
+    <summary>
+      <i>Code:</i>
+    </summary>
+    <p>
+
+    ```sh
+      # req.body must be json of following schema
+      {
+        "strategy": "portknock",
+        "camerasList": [{
+          "address": "192.168.0.109",
+          "port": 554
+        }]
+      }
+
+      # response.body must of  
+      [
+        {
+            "status": true,
+            "address": "192.168.0.109",
+            "port": 554
+        }
+      ]
     ```
     </p>
   </details>

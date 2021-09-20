@@ -9,6 +9,8 @@ const onvifFunctions = require('../controllers/onvifFunctions');
 const upnpFunctions = require('../controllers/upnpFunctions');
 const rtspFunctions = require('../controllers/rtspFunctions');
 var jsonParser = bodyParser.json();
+const isPortReachable = require('is-port-reachable');
+
 
 router.use(function(req, res, next) {
     rDebug(`${req.method}    ${req.url}`);
@@ -258,5 +260,69 @@ router.route('/upnp')
                 return res.send(upnpresults);
             })
     });
+
+/**
+ * @param req.body must be json of following schema
+ * {
+	"strategy": "portknock",
+	"camerasList": [{
+		"address": "192.168.0.109",
+		"port": 554
+	}]
+    }
+ *  @description this method is to check the liveliness of the cameras.
+    Three strategies are put in place.
+    1. port knocking: check camera is alive by port knocking. port number given by user. (default: 554)
+    2. framegrab: get a picture from the streamurl supplied in json body by user & true/false as per image frame availability
+    3. streamanalysis: give back true/false as per probing availability & return back probe response.
+
+    #response: [
+        {
+            "status": true,
+            "address": "192.168.0.109",
+            "port": 554
+        }
+    ]
+*/
+
+router.route('/liveliness')
+    .post( jsonParser, (req,res) => {
+        console.debug('camera liveliness check called!',req.body);
+        let requestBody = null;
+        let cameraCheckStrategy=null;
+        const cameraCheckStrategies = ["portknock","framegrab", "streamanalysis"];
+
+        requestBody = req.body;
+        
+        cameraCheckStrategy = requestBody['strategy'] || "portknock";
+        if(!cameraCheckStrategies.includes(cameraCheckStrategy))
+            return res.status(400).send("Invalid checking strategy");
+
+
+        let camerasList = requestBody['camerasList']
+        console.log("json parsed cameraslist",camerasList);
+        let camsStatus = camerasList.map( (cams) => {
+            return new Promise( async (resolv,rejct) => {
+                let status = await isPortReachable(cams.port, {host: cams.address, timeout: 3000} );
+                resolv({
+                    status: status,
+                    ...cams
+                })
+            });
+        });
+
+        Promise.all(camsStatus)
+            .then(camstatuses => {
+                console.debug("all cams status",camstatuses);
+                return res.send(camstatuses);
+            })
+    })
+
+
+    async function geResource(resource,query){
+        return new Promise( (resolve,reject) =>{
+
+        });
+    }
 
 module.exports = router;
