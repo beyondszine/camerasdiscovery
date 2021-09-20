@@ -2,8 +2,8 @@
     "name": "cameras-discovery",
     "version": "0.1.1",
     "description": "The node js app tries to discover cameras in network by various means including Onvif, port scan, finding RTSP URLs & restreaming via various ways.",
-    "scripts": {
-        "start": "HOST='0.0.0.0' nodemon ./bin/www",
+    "scripts": {        
+		"start": "cross-env HOST='0.0.0.0' nodemon ./bin/www",
         "test": "snyk test",
         "devstart": "DEBUG=* nodemon -i *.ts -i *.log -i *.md ./bin/www",
         "multiarchbuildpush": "git push -o ci.variable='CI_BUILDX_ARCHS=linux/amd64,linux/arm64'"
@@ -61,6 +61,7 @@
     },
     "devDependencies": {
         "husky": "^1.3.1",
-        "snyk": "^1.102.0"
+        "snyk": "^1.102.0",
+		"cross-env": "^7.0.3"
     }
 }
