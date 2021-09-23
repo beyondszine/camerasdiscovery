@@ -1,11 +1,7 @@
 # Cameras Discovery:
 
-<div style="text-align:center;">
-<img src="/public/images/camera-search.jpg" alt="Camera Search" width="200">
-<h5>
+<img src="/public/images/camera-search.jpg" alt="Camera Search">
 Image Credits: https://kintronics.com/ip-camera-systems-professional-versus-consumer-systems/
-</h5>
-</div>
 
 
 ### What is Cameras Discovery?
