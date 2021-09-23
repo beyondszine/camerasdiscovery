@@ -1,5 +1,13 @@
 # Cameras Discovery:
 
+<div style="text-align:center;">
+<img src="/public/images/camera-search.jpg" alt="Camera Search" width="200">
+<h5>
+Image Credits: https://kintronics.com/ip-camera-systems-professional-versus-consumer-systems/
+</h5>
+</div>
+
+
 ### What is Cameras Discovery?
 - Idea is to convert it from a library to a quickly-digestible tool including some other handy services & discovery options. 
 - Support for searching via other mechanicsms like UPnP,mdns,port number based to get list of all potential cameras.
@@ -7,6 +15,7 @@
 ### Features?
 
 - [x] DiscoverCameras : discover cameras in your network.  Supported scan types are Upnp, RTSP Port scan, Onvif.
+- [x] GetMp4stream : gets you the rtsp or other similar url to web play-able mp4 stream.
 - [x] Probestream : Probe a stream by giving URL as parameter.  ffprobe response is returend as json giving details like 
 - [x] Stream-ops : Pass a streamURL, 
   - [x] Save the video file from stream locally.
@@ -105,6 +114,33 @@ List of Routes:
     </p>
   </details>
   
+- `/mp4stream` : Returns a web play-able mp4 stream so that you can embed this as src in your video element and play the video simply.  The request takes 3 params.
+  - camerastream : pass uriencoded(EncodeURIComponent) stream link; ex: rtsp://192.168.x.y/live/av0?user=myuser&passwd=mypassword
+  - ttl: time duration for which you want the stream to be running in seconds; ex: 600s i.e 10minutes.
+  - width: the width of the video you want; ex: 720 pixels.
+  ffmpeg conversion in the function takes care of the above params to give you html video tag embeddable video off the bat.   
+  <details>
+    <summary>
+      <i>Code: </i>
+    </summary>
+    <p>
+
+    ```sh
+    curl --request GET \
+    --url http://localhost:8000/v1/rpc/mp4stream?camerastream=rtsp%3A%2F%2F192.168.x.y%2Flive%2Fav0%3Fuser%3Dmyuser%26passwd%3Dmypassword&ttl=600&width=720 \
+    ```
+    </p>
+  </details>
+    <details>
+    <summary>
+      <i>Sample Output: </i>
+    </summary>
+    <p>
+
+    ```sh
+    
+    ```
+    </p>
 
 
 - `/streamops` : Do operations on video stream/file like saving it locally/cloud or restream it.
